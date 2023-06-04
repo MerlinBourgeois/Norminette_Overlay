@@ -1,0 +1,61 @@
+.\" overlinette(1) -- Vérification de la qualité du code C avec Norminette
+.TH OVERLINETTE(1) "June 4, 2023" "Version 1.0" "overlinette Manual"
+
+.SH NAME
+overlinette - Checking the quality of C code with Norminette
+
+.SH SYNOPSIS
+.B overlinette
+[OPTIONS] [FILE/DIRECTORY]
+
+.SH DESCRIPTION
+.B overlinette
+is a command-line tool that uses Norminette to check the quality of C code.
+It displays style and norm errors based on the rules defined by Norminette.
+
+.SH OPTIONS
+.TP
+.B -s [KEYWORD]
+Displays only errors containing the specified keyword.
+
+.TP
+.B -i [KEYWORD]
+Excludes errors containing the specified keyword.
+
+.TP
+.B -r
+Generates a detailed report of the code quality.
+
+.TP
+.B -h
+Displays the help and available options for overlinette.
+
+.SH EXAMPLES
+Examples of command usage:
+
+.PP
+Example 1:
+
+overlinette mycode.c
+
+Example 2:
+
+overlinette -s error mycode.c
+
+Example 3:
+
+overlinette -i unused mycode.c
+
+Example 4:
+
+overlinette -r mycode.c
+
+.SH AUTHOR
+Written by Merlin Bourgeois.
+
+.SH SEE ALSO
+.BR norminette (1)
+
+.SH COPYRIGHT
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.

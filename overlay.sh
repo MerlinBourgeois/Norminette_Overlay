@@ -2,25 +2,25 @@
 
 # Définition des codes de couleur
 
-RED_UNDERLINE='\033[4;31m'     # Rouge_underline
-RED='\033[0;31m'	 # Rouge
-RED_HIGH='\e[0;101m' # Rouge_High_back
-GREEN='\033[0;32m'   # Vert
-GREEN_HIGH='\e[0;102m'	 # Vert_high_back
-YELLOW='\033[0;33m'  # Jaune
-YELLOW_HIGH='\e[0;103m' # Jaune_high
-PURPLE='\033[0;35m'  # Mauve
-CYAN='\033[0;36m'    # Cyan
-BLUE='\033[0;34m'    # Bleu
-BLUE_HIGH='\e[0;104m' #blue_high
-BOLD='\033[1m'       # Gras
-GREY_BLUE='\x1b[38;5;58m' #bleu-gris
-RESET='\033[0m'      # Réinitialisation des couleurs
-PINK_HIGH='\x1b[48;5;205m' #pink
-RED_PURPLE='\x1b[38;5;126m'
-PURPLE_HIGH='\e[0;105m' # purple high
-WHITE_HIGH='\x1b[48;5;255m' # White high
-BROWN='\x1b[48;5;95m' # Brun
+RED_UNDERLINE='\033[4;31m'		# Rouge_underline
+RED='\033[0;31m'				# Rouge
+RED_HIGH='\e[0;101m'			# Rouge_High_back
+GREEN='\033[0;32m'				# Vert
+GREEN_HIGH='\e[0;102m'			# Vert_high_back
+YELLOW='\033[0;33m'				# Jaune
+YELLOW_HIGH='\e[0;103m'			# Jaune_high
+PURPLE='\033[0;35m'				# Mauve
+CYAN='\033[0;36m'				# Cyan
+BLUE='\033[0;34m'				# Bleu
+BLUE_HIGH='\e[0;104m'			# blue_high
+BOLD='\033[1m'					# Gras
+GREY_BLUE='\x1b[38;5;58m'		# bleu-gris
+RESET='\033[0m'					# Réinitialisation des couleurs
+PINK_HIGH='\x1b[48;5;205m'		# pink
+RED_PURPLE='\x1b[38;5;126m'		# Red-Purple
+PURPLE_HIGH='\e[0;105m'			# purple high
+WHITE_HIGH='\x1b[48;5;255m'		# White high
+BROWN='\x1b[48;5;95m'			# Brun
 
 # Variables pour stocker les couleurs associées à chaque type d'erreur
 INVALID_HEADER_COLOR="${RED_UNDERLINE}"
@@ -186,8 +186,85 @@ format_error() {
 	printf "%b%s%b\n" "${color}${BOLD}" "$error" "${RESET}"
 }
 
-# Lire l'entrée ligne par ligne
-while IFS= read -r error; do
-  format_error "$error"
+generate_report() {
+  local norminette_output="$1"
+  
+  # Calcul des statistiques de qualité du code
+  local total_errors=$(echo "$norminette_output" | wc -l)
+  local error_counts=$(echo "$norminette_output" | awk '{print $2}' | sort | uniq -c)
+  
+  # Affichage du rapport
+  echo ""
+  echo "----- Quality Report -----"
+  echo "Total Errors: $total_errors"
+  echo "Error Counts:"
+  echo "$error_counts"
+}
+
+
+
+options=""
+norminette_arg=""
+keyword_s_opt=""
+keyword_i_opt=""
+generate_report_opt=""
+
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  case $key in
+    -s)
+      shift
+      keyword_s_opt="$1"  # Stocke l'argument suivant dans la variable "keyword"
+      shift
+      ;;
+    -i)
+      shift
+      keyword_i_opt="$1"  # Stocke l'argument suivant dans la variable "keyword"
+      shift
+      ;;
+    -r)
+      generate_report_opt="true"
+      shift
+      ;;
+    -h)
+      echo " -------------------------- HELP --------------------------- "
+      echo "|                                                           |"
+      echo "|                          DEFAULT                          |"
+      echo "| usage : overlinette [FILE/DIRECTORY]                      |"
+      echo "|                                                           |"
+      echo "|                          OPTIONS                          |"
+      echo "| -s : usage : overlinette -s [KEYWORD] [FILE/DIRECTORY]    |"
+      echo "| -i : usage : overlinette -i [KEYWORD] [FILE/DIRECTORY]    |"
+      echo "| -r : usage : overlinette -r [FILE/DIRECTORY]              |"
+      echo "| -h : usage : overlinette -h                               |"
+      echo "|                                                           |"
+      echo " ----------------------------------------------------------- "
+      shift
+      ;;
+    *)
+      norminette_arg="$key"
+      shift
+      ;;
+  esac
 done
 
+# Exécuter la commande norminette avec l'argument spécifié
+if [ -n "$norminette_arg" ]; then
+  norminette_output=$(norminette "$norminette_arg")
+  if [ -n "$keyword_s_opt" ]; then
+    norminette_output=$(echo "$norminette_output" | grep "$keyword_s_opt")
+  fi
+
+  if [ -n "$keyword_i_opt" ]; then
+    norminette_output=$(echo "$norminette_output" | grep -v "$keyword_i_opt")
+  fi
+
+  echo "$norminette_output" | while IFS= read -r error; do
+    format_error "$error"
+  done
+  
+  if [ "$generate_report_opt" = "true" ]; then
+    generate_report "$norminette_output"
+  fi
+fi
