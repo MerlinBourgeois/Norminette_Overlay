@@ -40,5 +40,11 @@ fi
 # Copier le fichier de manuel vers le répertoire des fichiers de manuel
 cp "$man_filename" "$man_dir"
 
-echo "Le script a été installé avec succès."
-echo "Vous pouvez maintenant exécuter le script en utilisant la commande 'overlinette'."
+# Vérifier le système d'exploitation et ajuster les messages en conséquence
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Le script a été installé avec succès sur macOS."
+    echo "Vous pouvez maintenant exécuter le script en utilisant la commande 'overlinette'."
+else
+    echo "Le script a été installé avec succès sur Linux."
+    echo "Vous pouvez maintenant exécuter le script en utilisant la commande 'overlinette'."
+fi
